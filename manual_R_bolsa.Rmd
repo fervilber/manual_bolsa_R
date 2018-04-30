@@ -30,9 +30,9 @@ Hemos dividido el documento en un capítulo por cada librería. Conocer el uso y
 
 Las librerías que forman la caja de herramientas básica para analisis de valores son:
 
-    *`quantmod` para obtener datos financieros desde la web, gráficas y mucho más.
-    * `TTR`, que continene muchos indicadores clásicos.
-    * [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2) que continene una completa base de funciones para programar sistemas de inversión
+ * `quantmod` para obtener datos financieros desde la web, gráficas y mucho más.
+ * `TTR`, que continene muchos indicadores clásicos.
+ * [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2) que continene una completa base de funciones para programar sistemas de inversión
     * tratamiento de series temporales con librearias `zoo`, `ts` ..
 
 Dedicaremos un capitulo a cada una de los paquetes o conjuntos de paquetes enumerados, con ejemplos básicos de las funciones más importantes. El paquete más completo es sin duda `quantstrat`, que forma un cuerpo completo de analisis, pero muchas veces los datos o valores que queremos estudiar no buscamos un analisis profundo ni complejo, sino la vision de datos o representaciones rápidas, para lo que los otros paquetes son perffectamente válidos y más sencillos de comprender y usar. 
