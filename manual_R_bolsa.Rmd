@@ -12,45 +12,52 @@ knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
 ```
 
 # R para ánalisis de valores 
-En este manual vamos a describir cómo sacar provecho del lenguaje R para aplicaciones de bolsa, análisis de carteras y valores. Trataremos de exponer de manera sencilla los conceptos y poner muchos ejemplos prácticos para extender el uso de R en el área financiera y de bolsa de valores.
+En este manual vamos a describir cómo sacar provecho del lenguaje R para aplicaciones de bolsa, análisis de carteras y valores. Expondremos conceptos y muchos ejemplos prácticos de aplicaciones de R en el área financiera y de bolsa de valores.
 
-No describiremos los usos básicos del lenguaje de programación R, para iniciarse es mejor acudir antes a manuales como el [https://drive.google.com/open?id=1EoLm-rqr5eikmpodb90uIGyju6E1jBjZ](Manual de R para Científicos de datos).
+No se trata de un manual de R, por lo que para aprender los usos básicos del lenguaje, e iniciarse es mejor acudir antes a manuales como el [https://drive.google.com/open?id=1EoLm-rqr5eikmpodb90uIGyju6E1jBjZ](Manual de R para Científicos de datos).
 
-R es un lenguaje muy completo gracias a que miles de colaboradores realizan programaciones intensivas de temas concretos y específicos y las ponen a disposición del resto de gente como paquetes. Las librerías o paquetes añaden funcionalidades a R incrementando la utilidad del lenguaje y del entorno asociado.
-En este manual describiremos los principales paquetes para trabajo de datos de bolsa y financieros, algunos son extremadamente potentes y no tienen nada que envidiar a aplicaciones especificas y de pago. El único aspecto que diferencia a R es el aspecto axterior o de usabilidad de las aplicaciones, pero el nucleo al que se tiene acceso de manera gratuita y desinteresada es enorme.
+R es un lenguaje muy completo gracias a que miles de colaboradores realizan programaciones intensivas de algoritmos de temas concretos y específicos y las ponen a disposición de la gente como paquetes libres. Estas librerías añaden funcionalidades a R, incrementan la utilidad del lenguaje y expandan su uso a áreas especificas.
 
-Los amantes de la Bolsa tienen a su disposicion miles de aplicaiones informáticas de análisis, gestión de carteras, representación de gráficos complejos, con estudios indicadores y sistemas preprogramados, entonces... ¿qué puede aportar R?, bueno, la respuesta para mi es sencilla, R aporta todo lo que tienen esas aplicaciones y mucho más, porque lo fundamental de R es que no tiene límites, es que no estás limitado por los indicadores del programa, los sistemas  las estrategias preconcevidas que han programado otros para tí, con R lo puedes hacer tu y lo mejor es que puedes hacer cosas diferentes, cosas, incluso básicas de las que carecen el resto de aplicaciones normales para el gran público.
+En este manual describiremos los principales paquetes para trabajo con datos de bolsa y financieros, algunos son extremadamente potentes y no tienen nada que envidiar a aplicaciones específicas y de pago. La diferencia quizás, es el aspecto exterior o de uso, pero el nucleo al que se tiene acceso de manera gratuita y desinteresada con R, es gigante.
 
-La desventaja es que requiere un aprendizaje y una familiarización con el programa y su lenguaje, cuanto más se dominine más amplias son las opciones.
+Los amantes de la Bolsa tienen a su disposicion miles de aplicaiones informáticas de análisis, gestión de carteras, representación de gráficos complejos, con estudios, indicadores y sistemas de inversión, entonces... ¿qué puede aportar R?, bueno, la respuesta para mi es sencilla, R aporta todo lo que tienen esas aplicaciones y **mucho más**, porque lo fundamental de R, es que no tiene límites, no estás limitado por los indicadores del programa, los sistemas, las estrategias preconcevidas que han programado otros para tí.... con R lo puedes hacer tú y lo mejor, es que puedes hacer cosas diferentes y de las que carecen el resto de aplicaciones normales para el gran público.
 
-La principal ventaja e R es que puedes aplicar técnicas no convencionales, sistemas diferentes que no podrías desarrollar con las aplicaciones (algunas maravillosas y estupendas) comerciales. Además tienes a tu disposición un trasfondo de funiones enorme de base matemática y científica quepuedes aplicar a los datos, con tratamientos estadísticos complejos y graficos personalizados a demanada que no podrás conseguir de otra forma.
+La desventaja es que requiere un aprendizaje y una familiarización con el programa y su lenguaje, con las librerías y paquetes específicos... eso es lo que intentaremos facilitar con este libro, cuanto más se dominine más amplias son las opciones.
+
+Con R puedes aplicar técnicas no convencionales, sistemas diferentes que no podrías desarrollar con las aplicaciones (algunas maravillosas y estupendas) comerciales. Además tienes a tu disposición un trasfondo de funciones enorme de base matemática y científica que puedes aplicar a los datos, con tratamientos estadísticos complejos y gráficos personalizados, a demanada, que no podrás conseguir de otra forma.
 
 ## Estructura del manual
-Hemos dividido el documento en un capítulo por cada librería. Conocer el uso y lo que podemos obtener de estos paquetes es el objetivo principal, pues nos dará el conocimiento base desde el acceso a los datos hasta la realización de análisis complejos. Nos centraremos en explicar cada paquete indivicualmente para formar el cuerpo base de heramientas, y después aplicaremos esas herremientas en los capitulos de práctica.
 
-Las librerías que forman la caja de herramientas básica para analisis de valores son:
+Hemos dividido el documento en dos partes principales, la primera parte continene la descripción de las principales librerías para uso con datos de bolsa y finanzas. Conocer estas librerías nos dará la base de  conocimiento sobre el que desarrollar los análisis personalizados. Desarrollaremos un capítulo por cada librería importante.
+
+La segunda parte del libro será exclusivamente de casos prácticos, en los que veremos la aplicación real de R en análisis, estudios, sistemas de inversión, de menos a más complejidad con lo que tendremos una visión completa de sus posibilidades y nos servirán de base para despues, desarrollar nuestros propios sistemas. 
+
+Las librerías que forman la caja de herramientas básica para análisis de valores son:
 
  * `quantmod` para obtener datos financieros desde la web, gráficas y mucho más.
  * `TTR`, que continene muchos indicadores clásicos.
  * [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2) que continene una completa base de funciones para programar sistemas de inversión
-    * tratamiento de series temporales con librearias `zoo`, `ts` ..
+ * tratamiento de series temporales con librearias `zoo`, `ts` ..
 
-Dedicaremos un capitulo a cada una de los paquetes o conjuntos de paquetes enumerados, con ejemplos básicos de las funciones más importantes. El paquete más completo es sin duda `quantstrat`, que forma un cuerpo completo de analisis, pero muchas veces los datos o valores que queremos estudiar no buscamos un analisis profundo ni complejo, sino la vision de datos o representaciones rápidas, para lo que los otros paquetes son perffectamente válidos y más sencillos de comprender y usar. 
+Dedicaremos un capitulo a cada una de los paquetes o conjuntos de paquetes enumerados, con ejemplos básicos de las funciones más importantes. `quantstrat`,es sin duda la librería más compleja y completa, con ella tendremos una solida base de análisis, pero muchas veces en los datos o valores que queremos estudiar no buscamos un análisis profundo ni complejo, sino la vision de datos o representaciones rápidas, para lo que los otros paquetes son perfectamente válidos y más sencillos de comprender y usar. 
 
 
 # Paquete `quantmod`
-`quandtmod` es un paquete fundamental para los que nos gusta la inversión, pues contiene funciones básicas para el trazado y para *descarga de datos* financieros de la web. 
-Una de las cosas que más me gusta del mundo de la inversión de bolsa es la facilidad para la obtención de datos, algo que no es fácil en el resto de ramas de cualquier ciencia. En las cuestiones económicas, por tradición de analisi técnico se han puesto a disposición pública multitud de datos y series temporales que proporcionan un delicioso comienzo a los amantes del analisis de datos. `quandmod` nos facilita mucho la obtencion de estos datos haciendolo aún más sencillo.
+`quandtmod` es una librería fundamental para los que nos gusta la inversión, pues contiene funciones básicas para el trazado y para *descarga de datos* financieros de la web. 
+
+Una de las cosas que más me gusta del mundo de la inversión en Bolsa de valores es la facilidad para la obtención de datos, algo que no es fácil en el resto de ramas de cualquier ciencia. En las cuestiones económicas, por tradición de análisis técnico, se han puesto a disposición pública multitud de datos y series temporales que proporcionan un delicioso comienzo a los amantes de las gráficas de datos. `quandmod` nos facilita la obtencion de estos datos y su representación.
 
 ## Obtener datos de internet
 
-El primer paso para trabajar en inversiones es obtener datos. Por suerte, la librería `quantmod` nos proporciona una función versatil para capturarlos de servicios web: `getSymbols()`. Esta función permite descargar datos, en concreto series temporales de valores de multiples webs públicas.
+Para obtener datos de un valor `quantmod` nos proporciona una función versatil que los descarga de servicios web, se trata de: `getSymbols()`. Esta función permite descargar datos, series temporales de valores de multiples webs como *google* o *yahoo*.
 
-Por defecto el comando `getSymbols()` devuelve un objeto **con el mismo nombre** que el símbolo (ticker) que se solicita, por lo que no hace falta asignarlo a una variable, pero si se desea asignarlo a una tenemos que establecer la propiedad `auto.assign=FALSE` al hacer la llamada de la función.
+Por defecto el comando `getSymbols()` devuelve un objeto **con el mismo nombre** que el símbolo (ticker) que se solicita, por lo que _no hace falta asignarlo a una variable_, pero si se desea almacenar los resultados en una variable concreta tenemos que establecer la propiedad `auto.assign=FALSE` al hacer la llamada de la función.
 
 Veamos un ejemplo que obtiene los datos del índice *ibex35* desde la web de *yahoo* y luego pinta los datos (el ticker del IBEX35 en la web de yahoo es ^IBEX).
 
 ```{r}
+    # instalamos quantmod si no está
+    #install.packages("quantmod")    
     # lectura de datos financieros con quantmod
     library(quantmod) # cargamos el paquete
     
@@ -63,16 +70,23 @@ Veamos un ejemplo que obtiene los datos del índice *ibex35* desde la web de *ya
                adjust = TRUE)       # indicamos que nos devuelva los cierres ajustados por splits, dividendos  etc..
     
     # vemos el encabezado de los datos descargados
-    # notese que la variable se ha creado con el nombre de la llamada
+    # nótese que la variable se ha creado con el nombre de la llamada
     head(IBEX)
     
+    
     # pintamos el valor de cierre Cl()
+    png("imag/graf_ibex.png")
     plot(Cl(IBEX))
-    
+    dev.off()
     # pintamos el histograma de frecuencias de los valores máximos Hi()
+    png("imag/histograma_ibex.png")
     hist(Hi(IBEX))
-    
+    dev.off()
 ```
+![grafica del Ibex 35](imag/graf_ibex.png)
+
+![Histograma de frecuencias del Ibex 35](imag/histograma_ibex.png)
+
 En el siguiente ejemplo asignamos los datos descargados directamente a una variable en R. Usaremos como origen el FRED (St. Louis Federal Reserve Bank's):
 
 ```{r}
@@ -82,9 +96,12 @@ En el siguiente ejemplo asignamos los datos descargados directamente a una varia
     # GDPPOT= Real Potential Gross Domestic Product
     # DFF= Effective Federal Funds Rate
     valor1<-getSymbols("GDPPOT", from ="2010-01-01", to ="2015-12-31", src ="FRED", warning= "FALSE",adjust = TRUE,auto.assign=FALSE)
+    png("imag/GDPPOT_FRED.png")
     plot.zoo(valor1)
+    dev.off()
     # como veras en el caso de los datos FRED las fechas de inicio y fin las ignora, por lo que conviene probar siempre los datos
 ```
+![GDPPOT FRED.png](imag/graf_ibex.png)
 
 ## Funciones OHLC
 Si nos fiajamos en los datos leídos por la función `getSymbols()` observamos que R almacena los valores como clase `xts` y `zoo`que son clases tipo serie temporal.
