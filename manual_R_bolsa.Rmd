@@ -38,11 +38,12 @@ Las librerías que forman la caja de herramientas básica para análisis de valo
  * `TTR`, que continene muchos indicadores clásicos.
  * [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2) que continene una completa base de funciones para programar sistemas de inversión
  * tratamiento de series temporales con librearias `zoo`, `ts` ..
+ * `coinmarketcapr` librería para obtener datos y cotizaciones de criptomonedas, bitcoin etc.
 
-Dedicaremos un capitulo a cada una de los paquetes o conjuntos de paquetes enumerados, con ejemplos básicos de las funciones más importantes. `quantstrat`,es sin duda la librería más compleja y completa, con ella tendremos una solida base de análisis, pero muchas veces en los datos o valores que queremos estudiar no buscamos un análisis profundo ni complejo, sino la vision de datos o representaciones rápidas, para lo que los otros paquetes son perfectamente válidos y más sencillos de comprender y usar. 
+Dedicaremos un capítulo a cada una de los paquetes o conjuntos de paquetes enumerados, con ejemplos básicos de las funciones más importantes. `quantstrat`,es sin duda la librería más compleja y completa, con ella tendremos una solida base de análisis, pero muchas veces en los datos o valores que queremos estudiar no buscamos un análisis profundo ni complejo, sino la vision de datos o representaciones rápidas, para lo que los otros paquetes son perfectamente válidos y más sencillos de comprender y usar. 
 
 
-# Paquete `quantmod`
+# LIBRERÍA `quantmod`
 `quandtmod` es una librería fundamental para los que nos gusta la inversión, pues contiene funciones básicas para el trazado y para *descarga de datos* financieros de la web. 
 
 Una de las cosas que más me gusta del mundo de la inversión en Bolsa de valores es la facilidad para la obtención de datos, algo que no es fácil en el resto de ramas de cualquier ciencia. En las cuestiones económicas, por tradición de análisis técnico, se han puesto a disposición pública multitud de datos y series temporales que proporcionan un delicioso comienzo a los amantes de las gráficas de datos. `quandmod` nos facilita la obtencion de estos datos y su representación.
@@ -101,14 +102,16 @@ En el siguiente ejemplo asignamos los datos descargados directamente a una varia
     dev.off()
     # como veras en el caso de los datos FRED las fechas de inicio y fin las ignora, por lo que conviene probar siempre los datos
 ```
-![GDPPOT FRED.png](imag/graf_ibex.png)
+![GDPPOT FRED](imag/graf_ibex.png)
 
-## Funciones OHLC
+## Funciones de transformación `OHLC`
 Si nos fiajamos en los datos leídos por la función `getSymbols()` observamos que R almacena los valores como clase `xts` y `zoo`que son clases tipo serie temporal.
 
-Muchos de los datos tipo valores que leeremos `getSymbols()` contendrán además varias columnas de datos para cada fecha por ejemplo para los valroes de: apertura (Op), cierre (Cl), máximo (Hi), mínimo (Lo), volumen y cierre ajustado. 
+La mayoría de los valores que lee `getSymbols()` contienen varias columnas de datos para cada fecha, este es el formato habitual de datos bursatiles en los que se almacena la: apertura (Op), cierre (Cl), máximo (Hi), mínimo (Lo), volumen y cierre ajustado. 
 
-Esto es importante pues las series de datos de acciones por ejemplo no contienen un solo dato por fecha sino 6 datos para cada fecah. Si queremos pintar la evolución del valor, debemos elegir qué columna pintar o qué tipo de grafica, esto lo hacemos con las funciones **OHLC**. Estas funcionesdenominadas **OHLC** por (Open, High, Low, Close) hacen de filtro de los datos. Si suponemos que nos hemos descargado el valor en serie temporal de la acion x, las opciones de filtro OHLC de los datos son:
+Por lo tanto las series temprales descargadas contienen (habitualmente) 6 datos para cada fecha concreta. Si queremos pintar la evolución del valor, debemos elegir qué columna pintar de esos 6 datos, o qué tipo de gráfica (pues las graficas de velas por ejemplo necesitan varios valores por fecha), esto lo hacemos con las funciones **OHLC** que sirven para especificar qué valor concreto queremos.
+
+Las funciones denominadas **OHLC** se llana así por referencia a sus nombres en inglés (Open, High, Low, Close) hacen de filtro de los datos. Por ejemplo, Si nos hemos descargado el valor en serie temporal de la acion de x=telefónica, las opciones de filtro OHLC de los datos son:
 
  - `Op(x)` $\rightarrow$ serie temporal con solo los valores de apertura 
  - `Hi(x)` $\rightarrow$ serie temporal con los valores máximos  
@@ -118,21 +121,31 @@ Esto es importante pues las series de datos de acciones por ejemplo no contienen
  - `Ad(x)` $\rightarrow$ ..cierre ajustado 
  - `seriesHi(x)`$\rightarrow$ máximo de la serie completa
  - `seriesLo(x)`$\rightarrow$ mínimo de la serie completa
- - `OpCl(x)`, `ClCl(x)`, `HiCl(x)`, `LoCl(x)`, `LoHi(x)`, `OpHi(x)`,`OpLo(x)`,`OpOp(x)`,`HLC(x)`,`OHLC(x)`,`OHLCV(x)`
+ - `OpCl(x)`, `ClCl(x)`, `HiCl(x)`, `LoCl(x)`, `LoHi(x)`, `OpHi(x)`,`OpLo(x)`,`OpOp(x)`,`HLC(x)`,`OHLC(x)`,`OHLCV(x)` este tipo de series calcula la diferencia de un periodo entre los valores indicados: Ejm de cierre a cierre ClCl, de Maximo a Cierre HiCl.
 
-Como vemos los datos de valores son especiales, son series temporales de varias columnas y se pueden filtrar ordenar y extraer independientemente. También existen otras muchas funciones relacionadas con este tipo de series de valores que permiten obtener datos de clase o saber qué columnas continene, como las siguientes:
+Como vemos los datos usados en series de valores de bolsa son especiales, son series temporales de varias columnas de datos y se pueden filtrar ordenar y extraer independientemente. También existen otras muchas funciones relacionadas con este tipo de series temporales  que permiten obtener qué clase es o saber qué columnas continene, como las siguientes:
 
 ```{r warning=FALSE}
     # Observamos los datos y funciones sobre los mismos
-        class(IBEX) # Mostrar la clase de los datos
-        is.OHLC(IBEX)# Muestra si son o no datos del tipo apertura,máximo,mínimo,cierre.
-        has.Vo(IBEX)# es TRUE si los datos contienen el volumen
-        seriesHi(IBEX) # nos devuelve el valor máximo de la serie
+    head(IBEX)
+    IBEX<-na.omit(IBEX)
+    class(IBEX) # Mostrar la clase de los datos
+    is.OHLC(IBEX)# Muestra si son o no datos del tipo apertura,máximo,mínimo,cierre.
+    has.Vo(IBEX)# es TRUE si los datos contienen el volumen
+    seriesHi(Cl(IBEX)) # nos devuelve el valor máximo de la serie
+    seriesLo(IBEX) # el minimo de la serie de minimos
+    
+    # nos da una serie de valores logicos si la serie se acelera o no
+    head(seriesAccel(Cl(IBEX)))
+    
+    # nos da una serie de valores logicos si la serie se ha incrementado o no
+    head(seriesIncr(Cl(IBEX), thresh=0, diff.=1L))
+    
 ```
 ## Funciones de retornos
-Otro tipo de funciones son las que nos dan los retornos (diarios, semanales, mensuales, anuales) de la serie. El retorno es el porcentaje de incremento de valor en el tiempo, es una manera my buena de normalizar las series temporales e independizarlas del precio actual.
+Otro tipo de funciones son las que nos dan los retornos (diarios, semanales, mensuales, anuales) de la serie. El retorno es el porcentaje de incremento de valor en el tiempo, es una manera de normalizar las series temporales e independizarlas del precio actual atendiendo exclusivamente a su diferencia. 
 
-Estas funciones de retorno incluidas en el paquete `quandmod` se usan así:
+Estas funciones de retorno incluídas en el paquete `quandmod` se usan así:
 
 ```{r}
     # Filtros de seleccion :: doble punto indica filtro de fechas
@@ -149,46 +162,64 @@ Estas funciones de retorno incluidas en el paquete `quandmod` se usan así:
     # allReturns(IBEX) # todos los retornos en una dataframe
     
     # pintamos la grafica de retornos semanales del IBEX       
+    #png("imag/retornos_semanales_IBEX.png", height=300,width=600, units="px")
         plot.zoo(weeklyReturn(IBEX))
+    #dev.off()
+    
 ```
+![retornos semanales del IBEX](imag/retornos_semanales_IBEX.png)
 
-
-## Gráficas
-La librería `quandmod` tiene funiones interesantes para la representacion de gráficas de valores. En los ejemplos anteriores estamos usando la gráfica más simple de series con la librería zoo, (plot.zoo), la ventaja es que `zoo` simplifica los ejes y tramas para una mejor visualización de los datos que con la función de R base (plot).
+## Gráficas con `quandmod`
+La librería `quandmod` tiene funiones interesantes para la representacion de gráficas de valores. En los ejemplos anteriores hemos usado las opciones de trazado de R base o de la librería `zoo` de series temporales (`plot.zoo`). Con `zoo` se simplifican los ejes y tramas para una mejor visualización de los datos que con la función de R base (`plot`).
 
 ```{r comparar graficas plot}
-    par(mfrow=c(2,1))
+    # Comparacion de sistemas graficos
+    png("imag/compara_trazados.png", height=400,width=600, units="px")
+    par(mfrow=c(1,2))
     # pintamos la grafica con sistema R base
     plot(monthlyReturn(IBEX))
     # pintamos la grafica con zoo
     plot.zoo(monthlyReturn(IBEX))
 
+    dev.off()
 ```
 
-Las series temporales de valores contienen muchas columnas de datos por lo que exiten graficos especialmente indicados para visualizar los datos, algunos de los incluidos en la librería `quandmond` son:
+Para representar las series temporales de valores que, como hemos visto, contienen varias columnas de datos por cada fecha, existen tipos de gráficos especiales. Estos gráficos son usados en análisis técnico bursatil. Los dos formatos más habituales son: 
 
- - chartSeries
+    * graficos de barras
+    * graficos de velas japonesas
+    * otros como los graficos de punto y figura etc. 
+
+![Tipos de representaciones de datos de bolsa](imag/tipos de graficos bolsa.png)
+
+La aportación de estos tipos de gráficos es que representan de forma clara todos los datos disponibles en una misma representación que aporta información interesante de tendencias, volatilidad y rango etc.
+Existen multtud de variantes de este tipo de representación, así como diferentes gamas de colores indicativos. Lo habitual es usar el rojo para las bajadas y el verde para las subidas. La librería `quandmond` contiene varias funciones específicas para representarlas que son `chartSeries()` y `barChart()`
 
 ### `chartSeries` y `barChart`
-La función `chartSeries()` sirve para pintar la típica grafica de velas de valores, incluyendo todas las columnas de datos almacenados en la serie OHLC. Además permite incluir indicadores y volumen así como plantillas predeterminadas de acabados y colores.
+La función `chartSeries()` sirve para pintar la típica grafica de velas de valores, incluyendo todas las columnas de datos almacenados en la serie *OHLC*. Además permite añadir indicadores y volumen, así como plantillas predeterminadas de acabados y colores.
 
-La funcion `barChart` es igual a `chartSeries`,excepto que en lugar de velas usa el tipo línea con guión, veamos un ejemplo para verlo mejor: 
+La funcion `barChart` es igual a `chartSeries`,excepto que en lugar de velas usa el tipo barra. 
 
 ```{r}
     # Usamos el motor gráfico de quantmod
     # sobre la serie de datos desargada del IBEX35
-
     chartSeries(IBEX['2017-12::'], TA=NULL,theme=chartTheme('white'))
 
     barChart(IBEX['2017-12::'],TA=NULL,theme=chartTheme('white'))
     
     # Añadimos indicadores a la gráfica    
     chartSeries(IBEX,TA=c(addVo(),addBBands()),theme=chartTheme('white'))
-    
-```
-Como vemos el argumento `TA=` permite introducir **indicadores** en la gráfica como el volumen o bandas de bollinger. El argumento `theme` indica el formato de trazado general del gráfico que puede personalizarse al completo (ejem: `chartTheme('white',up.col='blue',dn.col='red')`) .
 
-Los indicadores que se pueden añdir al gráfico con `quantmod` son:
+```
+![chartSeries grafico de velas japonesas](imag/velas1.png)
+
+![barChart grafico de barras](imag/barras1.png)
+
+![chartSeries añadiendo indicadores y volumen](imag/velasconvol.png)
+
+El argumento `TA=` permite introducir **indicadores** en la gráfica como el volumen o bandas de bollinger. El argumento `theme` indica el formato de trazado general del gráfico que puede personalizarse al completo (ejem: `chartTheme('white',up.col='blue',dn.col='red')` indicando que los colores cambien a azul y rojo).
+
+Los indicadores que se pueden añadir al gráfico son:
 
  - `addvo()`: $\rightarrow$ añade el volumen
  - `addBBands()`: $\rightarrow$ Añade las bandas de Bollinger
@@ -211,83 +242,127 @@ Los indicadores que se pueden añdir al gráfico con `quantmod` son:
  - `addTRIX()`: $\rightarrow$ añade el *Triple Smoothed Exponential Oscillator*
  - `addWMA()`: $\rightarrow$ añade el *Add Weighted Moving Average*.
 
+## Leer una lista de tickers como data.frame
+```{r}
+tt<-list()
+symbol_list<-list("SAN.MC","TEF.MC")
+f_ini<-"2008-01-01"
+f_fin<-"2015-01-01"
 
+#leemos cada ticker y los almacenamos en una lista
+for(i in symbol_list){
+    a= getSymbols(i, src = "yahoo", from = f_ini, to = f_fin,env=NULL,adjust = TRUE,auto.assign = FALSE)
+    
+    tt[[i]]<-a
+}
 
-# CARTERAS
-Por ejemplo vamos a comparar los retornos de cocacola y pepsi de manera relativa
-```{r eval=FALSE}
-# Define ko_pep como el ratio de las acciones de ko respecto a las de pep
-ko_pep <- ko/pep
-
-# Make a time series plot of ko_pep
-  plot.zoo(ko_pep)
-  
-# Add as a reference, a horizontal line at 1
-  abline(h=1)
+datos<-data.frame(tt[[1]]$SAN.MC.Close,tt[[2]]$TEF.MC.Close)
+autoplot.zoo(datos)
 ```
 
-la decisión en incvertir en un valor o en muchos se fundamenta en limitar los riesgos,si ponemos todo en una misma cesta el riesgo es mayor que si repartimos los valores en varias carteras.
+# LIBRERÍA `TTR`
+El paquete `TTR`contiene muchos de los **indicadores clásicos de análisis técnico** así como funciones de descarga de datos de *Yahoo Finance* y otras funciones interesantes.
 
+Entre los indicadores tienen programados muchos tipos de medias móviles (SMA, EMA, ALMA...ADX, RSI,) ampliamente usados en análisis.
+
+Tiene una funcion de descarga de datos similar a `quantmod::getSymbols()` para yahoo denominada `getYahooData()`  y otra que descarga todos los ticker disponibles `stockSymbols()`, pero hay que tener en cuenta que solo funciona para el mercado americano AMEX NASDAQ y NYSE.
+
+```{r "Ejemplo con TTR"}
+    # Ejemplo paquete TTR
+    library("TTR")
+    # Obtener datos cotizados de yahoo
+        # bajamos los datos de accion santander del 2017
+        acc1 <- getYahooData("TEF.MC", 20170101, 20171231, freq = "daily", type = "price",  adjust = TRUE, quiet = FALSE)
+        head(san)# vemoslos datos descargados (ojo porque hay dos cierres el ajustado y el real) por esto se recomienda usar mejor getSymbols de quantmod
+    # La funcion getYahooData funciona pero se recomienda usr mejor getSymbols
+        acc1<-getSymbols("TEF.MC", from ="2012-01-01", to ="2015-12-31", src ="yahoo", warning= "FALSE",adjust = TRUE,auto.assign=FALSE)
+        
+    # Calcular indicadores de medias móviles sobre los datos
+        sma.50 <- SMA(Cl(acc1), n = 50) # media movil de 50 periodos sobre el cierre
+        ema.20<- EMA(Hi(acc1),n=100) # media movil exponencial de 100 periodos sobre la maximos
+        
+    # trazamos un gráfico
+        png("imag/ohlcsan.png", height=400,width=600, units="px")
+        #acc1$SMA50<-sma.50
+        #plot.zoo(acc1[,c(1,7)],plot.type="single", type="l", lwd=1.5) 
+        plot(Cl(acc1))
+    # y añadimos a la grafica de la media movil
+        lines(sma.50, col="red", lwd=2)
+        lines(ema.20, col="blue", lwd=2)
+        dev.off()
+
+    # Obtener todos los ticker del NYSE
+    # nos devuelve todos los tickers del mercado NYSE
+        nyse.valores <- stockSymbols("NYSE") # ojo solo funciona para AMEX NASDAQ y NYSE
+        #head(nyse.valores)
+        # guardar tabla como imagen 
+            library(gridExtra)
+            png("imag/tablanyse.png", height = 50*nrow(head(nyse.valores)), width = 200*ncol(head(nyse.valores)))
+            grid.table(head(nyse.valores))
+        dev.off()
+        
+
+```
+
+![Cierre e indicadores calculados con TTR de TEF](imag/ohlcsan.png)
+
+
+![tabla: 6 primeros valores del NYSE](imag/tablanyes.png)
+
+
+## Uso de indicadores
+El paquete `TTR`tiene su principal aportación en la gran cantidad de indicadores que tiene, y la posibilidad de personalizarlos. Además las funciones internas manejan cualquier tipo de serie temporal de origen como *zoo, xts, timeSeries, ts, its, data.frame, matrix*... 
+
+No vamos a realizar la descripcion de los indicadores, pero todos los clásicos están incluidos, y puede verse la descripción de cada uno en la propia documentación de la librería (Ejmpl: `?ZigZag`).
+
+En cada caso se necesitará un tipo de entrada de serie temporal, según cómo se realice el cálculo de cada indicador, algunos solo necesitan los datos de cierre, y otros los datos OHLC al completo. 
 
 ```{r}
-#Introducion al riesgo de carteras
-# ejemplo de inversion realizada por una persona en 4 diferentes inversiones
-values <- c(5000, 2000, 1000, 200) # valor de cada inversión
-names(values) <- c("inv1_bonos","inv2_bolsa","v3_bitcoin","inv4_empresa") 
+        acc1<-getSymbols("SPY", from ="2015-01-01", auto.assign=FALSE)
+        
+        precio<-Cl(acc1)
+        rsi<- RSI(precio, n=14)
+        # personalizamos la formula de RSI para que el volumen cuente en la masa de calculo
+        rsi_1<-RSI(precio, n=14,maType="WMA", wts=volume)
+        # personalizamos el RSI de forma que las subidas cuenten diferente y sobre distinto intervalo que las bajadas
+        rsi_2 <- RSI( precio, 
+                maType=list(
+                    maUp=list(EMA,n=14,ratio=1/5),
+                    maDown=list(WMA,n=16,wts=1:16))
+                )
+        # vemos algono de los resultados
+        tail(rsi_2)
+        
+        # BANDAS DE BOLLINGER
+        bb40<-BBands(precio, n=14, sd=2)
+        # pintamos los resultados sin el volumen 4
+        autoplot.zoo(bb40[,-4], facets=NULL)
+        
+        bbEMA <- BBands(precio, sd=2.0, n=14, maType=EMA)
+        autoplot.zoo(bbEMA[,-4], facets=NULL)
+        
+        # ROC es el indicador de diferencia de precios el Rate of Change o momento
+        diffdia <-ROC(precio, n=1)
 
-weights <- values/sum(values) 
-barplot(weights)
-
-# si buscamos una inversion equivalente en cada producto haríamos
-inver_total<-sum(values)
-# el peso sería dividir por el numero de diferentes productos la inversion total
-weights <- rep(1/4,4)
-weights
-
-# otro ejemplo según capitalizacion de mercado sería:
-# Define la capitalización de cada empresa
- marketcaps<-c(5, 8, 9, 20, 25, 100, 100, 500, 700, 2000)
-# Calcula el peso
-weights<-marketcaps/sum(marketcaps)
-# Inspect summary statistics
-  summary(weights)
-# Create a barplot of weights
-  barplot(weights)
 ```
+# LIBRERÍA `PerformanceAnalytics`
 
-Optimizar el peso de cada valor en una cartera puede ser complejo.
-Una formula muy utilizada es establecer el mismo peso para todos los valores, o establecer un peso según la capitalización de cada valor haciendo una especie de índice
+Esta librería se utiliza para realizar cálculos sobre carteras de valores. Una cartera  (portfolio en inglés) es un conjunto de inversiones diferentes, es simplemente no poner los huevos en la misma cesta y repartir las inveriones en distintos valores.
 
-## Retorno de un cartera
+Sobre esta idea se forma una completa y compleja teoría y práctica económica, de la que se ha escrito extensamente. Aquí trataremos de simplificar, pero introduciendo conceptos económicos.
 
-```{r}
-# Vector of initial value of the assets
-in_values <- c(1000,5000,2000)
-  
-# Vector of final values of the assets
-fin_values <-c(1100,4500,3000)
+El paquete `PerformanceAnalytics` nos permitirá manejar analiticamente carteras de valores y realizar estadisticas y rebalanceos entre los diferentes valores que la componen.
 
-# Weights as the proportion of total value invested in each assets
-weights <-in_values/sum(in_values)
-
-# Vector of simple returns of the assets 
-returns <- (fin_values - in_values)/in_values
-  
-# Compute portfolio return using the portfolio return formula
-preturns <- sum(weights*returns)
-```
 ## el impacto asimetrico de las perdidas y ganancias
-Un hecho matemático, pero que no deja de ser cusioso al principiante en la inversión, es que las perdidas y las ganancias en distintos periodos no son compensadas entre si por identicas cantidades, es decir que una perdida del 50% en el primer año no se compensa con una ganancia del 50% el segundo añoa, pues la formula sería: $(1+x)∗(1−x)=1−x^2$  es decir una perdida del 50% $(1-0.5)*(1+x)=1$ esto es $x=1/(1-0.5) - 1$ que es un 100%.
- 
-# 'PerformanceAnalytics'
+Es un hecho matemático, pero que no deja de ser cusioso al que lo piensa por primera vez, que a pérdidas y ganancias iguales en distintos periodos de tiempo no son compensadas entre si.
 
-El paquete `PerformanceAnalytics`  nos permitirá manejar carteras de valores y realizar estadisticas y rebalanceos entre los diferentes valores que la componen.
+Esto se comprende mejor con un un ejemplo: si parto de 100 €, y pierdo el 50% en un año, tengo a final de año 50 €. Para recuperar hasta 100 € del principio necesito una ganancia el segundo año del 200% y no del 50%.
 
-## Calculo de los retornoes
 
-El cálculo de la evolución de una cartera para un período es bastante sencillo de hacer en R. Las funciones `Return.calculate()` y `Return.portfolio()`, en el paquete R `PerformanceAnalytics` son extremadamente útiles. Requieren que los datos de entrada sean de la clase de la serie *xts-time*. 
+## Calculo de los retornes
+Para el cálculo de retornos ya vimos que la librería `quantmod` tiene varias funciones del tipo `dailyReturn` o `weeklyReturn` que calculan el % de retorno en una serie temporal, pero con `PerformanceAnalytics` podemos hacerlo sobre una cartera de valores con las funciones `Return.calculate()` y `Return.portfolio()`. Las funciones requieren que los datos de entrada sean de la clase de la serie *xts-time*. 
 
-Vamos a ver un ejemplo de calculo de los retornos diarios o diferencias diarias de precios en tanto por uno de la serie del Ibex obtenida de yahoo.
+Vamos a ver un ejemplo de cálculo.
 
 ```{r}
 #EJEMPLO DE CALCULO DE RETORNOS DIARIOS
@@ -296,168 +371,161 @@ library(PerformanceAnalytics)
 # lectura de datos financieros con quantmod
 library(quantmod) 
     
-    # leemos los datos del IBEX
-    getSymbols("^IBEX", # simbolo del Ibex en yahoo finance
-               from = "2015-01-01", # desde fecha
-               to = "2017-12-31",   # hasta fecha
-               src = "yahoo",       # origen de los datos
+    # leemos los datos del IBEX35
+    getSymbols("^IBEX",
+               from = "2015-01-01",
+               to = "2017-12-31",   
+               src = "yahoo",       
                warning= "FALSE",
-               adjust = TRUE)       # indicamos que nos devuelva los cierres ajustados por splits, dividendos  etc..
-    head(Cl(IBEX)) # vemos el cierre del IBEX
+               adjust = TRUE)     
 
+    head(Cl(IBEX)) # vemos el cierre del IBEX
 
 # Calculamos el retorno diario de los cierres del IBEX
 # con la funcion Return.calculate()  
-    returns<-Return.calculate(Cl(IBEX))
+    retornos<-Return.calculate(Cl(IBEX))
  # vemos el encabezado de la serie de retornos.
-    head(returns)
+    head(retornos)
 # quitamos la primera fila de datos pues es NA
     returns <- returns[-1, ]
     head(returns)
+
+# con quantmod se hace así:
+    head(dailyReturn(Cl(IBEX)))
 ```
+Vamos a hacr un ejemplo de cartera con dos valores y con una distribción inicial de pesos del 50% en cada valor.
 
-### La serie temporal de devoluciones de cartera
-
-En el ejercicio anterior, creó una variable llamada devoluciones de los precios diarios de las acciones de Apple y Microsoft. En este ejercicio creará dos portafolios usando la serie de retorno que creó anteriormente. Las dos carteras serán diferentes en una forma, y esa es la ponderación de los activos.
-
-En el último video, se presentaron dos estrategias de ponderación: la estrategia de comprar y mantener, y una estrategia de reequilibrio mensual. En este ejercicio, creará una cartera en la que no reequilibrará, y otra en la que reequilibrará mensualmente. A continuación, visualizará los retornos de cartera de ambos.
-
-Utilizará la función Return.portfolio () para sus cálculos. Para esta función, proporcionará tres argumentos: R, weights y rebalance_on. R es una serie temporal de devoluciones, pesos es un vector que contiene pesos de activos, y rebalance_on especifica en qué calendario-período reequilibrar. Si necesita ayuda, asegúrese de verificar la documentación haciendo clic en la función.
-
-Para este ejercicio, trabajará con los datos de devoluciones, que están precargados en su espacio de trabajo.
+Usaremos `PerformanceAnalytics` para calcular el retorno de dicha cartera en dos supuestos uno sin rebalanceo, es decir un clásico comprar y mantener (*buy and hold*) y otro supuesto en el que rebalanceamos la cartera cada año, es decir que cada fin de año volvemos a hacer que sean al 50% cada valor.
 
 ```{r}
 # cargamos PerformanceAnalytics 
 require(PerformanceAnalytics)
 require(quantmod)
+# 1. lectura de datos
     # obtenemos los datos de SAN.MC
-    getSymbols("SAN.MC", # simbolo del Ibex en yahoo finance
+    getSymbols("SAN.MC", # simbolo del Santander en yahoo finance
                from = "2015-01-01", # desde fecha
                to = "2017-12-31",   # hasta fecha
                src = "yahoo",       # origen de los datos
                warning= "FALSE",
                adjust = TRUE)   
     
-    getSymbols("TEF.MC", # simbolo del Ibex en yahoo finance
+    getSymbols("SGRE.MC", # simbolo del GAMESA SIEMMEnS en yahoo finance
                from = "2015-01-01", # desde fecha
                to = "2017-12-31",   # hasta fecha
                src = "yahoo",       # origen de los datos
                warning= "FALSE",
-               adjust = TRUE)  
+               adjust = TRUE)
+    
+# 2. Calculo de retornos
     # juntamos los cierres de IBEX y SAN.MC
     # y calculamos los retornos diarios de ambos
-    returns<- cbind(Return.calculate(Cl(TEF.MC)),Return.calculate(Cl(SAN.MC)))
-    returns <- returns[-1, ]
-    head(returns)
-
+    retornos<- cbind(Return.calculate(Cl(SAN.MC)),Return.calculate(Cl(SGRE.MC)))
+    retornos <- retornos[-1, ] #quitamos primera fila 
+    head(retornos)
+# 3. Calculo de pesos de cartera
     # Creeamos la distribucion de la cartera como el 50% de cada valor
-    eq_weights <- c(0.5, 0.5)
-
+    cart_pesos <- c(0.8, 0.3)
+    
+# 4. Creamos la cartera en PerformanceAnalytics
     # Creamos una cartera y vemos el retorno si buy and hold
-    pf_bh <- Return.portfolio(R = returns, weights = eq_weights)
+    cart_bh <- Return.portfolio(R = retornos, weights = cart_pesos)
 
     # Creamos otra cartera en la que rebalanceemos el porcentaje cada mes 
-    pf_rebal <- Return.portfolio(R = returns, weights = eq_weights,rebalance_on = "months")
-
-    # Plot the time-series
+    cart_rebal <- Return.portfolio(R = retornos, weights = cart_pesos,rebalance_on = "months")
+    #cart_rebal <- Return.portfolio(R = retornos, weights = cart_pesos,rebalance_on = "weeks")
+    
+# 5. Pintamos la cartera
+    # seleccionamos una ventana de tiempo de 2017 solamente
+    png("imag/retornos_cartera.png", height=450,width=800, units="px")
     par(mfrow = c(2, 1), mar = c(2, 4, 2, 2))
-    plot.zoo(pf_bh)
-    plot.zoo(pf_rebal)
+     plot.zoo(window(cart_bh, start = "2017-01-01", end = "2017-12-31"))
+     plot.zoo(window(cart_rebal, start = "2017-01-01", end = "2017-12-31"))
+    dev.off()
     
 ```
-### La serie de tiempo de los pesos
+![evolucion de los retornos de la cartera SAN GAMESA](imag/retornos_cartera.png)
 
-En el ejercicio anterior exploró la funcionalidad de la función Return.portfolio() y creó carteras utilizando dos estrategias. Sin embargo, al establecer el argumento verbose = TRUE en Return.portfolio(), puede crear una lista de ponderaciones y valores de inicio de período (BOP) y fin de período (EOP) además de los retornos de la cartera y las contribuciones.
 
-Puede acceder a ellos desde el objeto de lista resultante creado desde Return.portfolio (). La lista resultante contiene `$retorno`, `$contribuciones`, `$BOP.Peso`, `$EOP.Peso`, `$BOP.Valor` y `$EOP.Valor`.
+La función `Return.portfolio()` tiene un argumento especial que si se establece a VERDADERO crea una lista de información complementaria y completa de la cartera con el tiempo. Este argumento es `verbose = TRUE`. Si ejecutamos la funcion de esta forma se crea una lista de ponderaciones y valores de inicio (BOP) y fin de periodo (EOP) además de los retornos de la cartera.
 
-En este ejercicio, volverá a crear las carteras que hizo en el último ejercicio, pero lo ampliará creando una lista de cálculos con `verbose = TRUE`. A continuación, visualizará el final del período de pesos de Apple.
-
-El objeto devuelto está precargado en su espacio de trabajo.
-lo que buscamos es comparar en cada fin de periodo (día), como se rebalancea la cartera dibujando en dos casos diferentes el balance al final del día.
+Si ejecutamos la funcion con  `verbose = TRUE` el resultado contienen los siguientes elementos en forma de lista: `$retorno`, `$contribuciones`, `$BOP.Peso`, `$EOP.Peso`, `$BOP.Valor` y `$EOP.Valor`.
 
 ```{r}
 # Create the weights
-eq_weights <-c(0.5,0.5)
+cart_pesos <-c(0.5,0.5)
 
 # Create a portfolio using buy and hold
-pf_bh <- Return.portfolio(returns, weights = eq_weights, verbose = TRUE )
+cart_bh <- Return.portfolio(retornos, weights = cart_pesos, verbose = TRUE )
 
-# Create a portfolio that rebalances monthly
-pf_rebal <- Return.portfolio(returns, weights = eq_weights, rebalance_on = "months", verbose = TRUE )
+str(cart_bh)
+# Evolucion del % de cartera de Gamesa
+plot.zoo(cart_bh$EOP.Weight$SGRE.MC.Close)
+# idem de Santander
+plot.zoo(cart_bh$EOP.Weight$SAN.MC.Close)
 
-# Create eop_weight_bh
-eop_weight_bh<-pf_bh$EOP.Weight
-
-# Create eop_weight_rebal
-eop_weight_rebal<-pf_rebal$EOP.Weight
-
-# Plot end of period weights
-par(mfrow = c(2, 1), mar=c(2, 4, 2, 2))
-plot.zoo(eop_weight_bh$TEF.MC.Close )
-plot.zoo(eop_weight_rebal$TEF.MC.Close)
-#par(mfrow=c(1,1))
 ```
 
-## Explorar datos mensuales de retornos 
+## Función `table.CalendarReturns`
+Una función útil de `PerformanceAnalytics` es `table.CalendarReturns` que nos facilita el cálculo de tablas de calendario o mensuales de la rentabilidad de las acciones.
 
-A partir de los datos diarios obtenidos vamos a transformarlos en mensuales y obtener las graficas de retornos.
+A partir de los datos diarios obtenidos con `getSymbols()` de un valor podemos hacer transformaciones a datos semanales, mensuales etc.. con funciones de transformación y representar tabla en un santiamén. Los datos se obtienen en porcentajes.
 
 ```{r}
-require(PerformanceAnalytics)
-require(xts)
-
-
-# Convertimos a mensuales los datos diarios 
-IBEX_mon <-  to.monthly(IBEX)
-head(IBEX_mon)
-
-# Creamos la serie de retornos usando Return.calculate sobre los precios de cierre
-IBEX_returns <- Return.calculate(IBEX_mon[,4])
-IBEX_returns<-IBEX_returns[-1, ]
-# Time series plot
-dev.off()
-plot.zoo(IBEX_returns)
-
-# Producimos una table de año y mes
-# usaremos una funcion calendarReturns del paquete PerformanceAnalytics
-table.CalendarReturns(IBEX_returns)
-
-# Calcula la media de retorno mensual
-mean(IBEX_returns)
-
-# Calcula la media geometrica de retorno mensual
-mean.geometric(IBEX_returns)
-
-# Calcula la desviación estandar
-sd(IBEX_returns)
+    require(PerformanceAnalytics)
+    require(xts)
+    
+    # Convertimos a mensuales los datos diarios 
+    v_mensuales <-  to.monthly(SAN.MC)
+    head(v_mensuales)
+    
+    plot.zoo(Cl(v_mensuales))
+    
+    # Creamos la serie de retornos usando Return.calculate sobre los precios de cierre
+    retornos_mes <- na.omit(Return.calculate(Cl(v_mensuales)))
+    
+    # Producimos una tabla de año y mes
+    # usaremos una funcion calendarReturns del paquete PerformanceAnalytics
+    table.CalendarReturns(retornos_mes)
+    
+    # Calcula la media de retorno mensual
+    mean(retornos_mes)
+    
+    # Calcula la media geometrica de retorno mensual
+    mean.geometric(retornos_mes)
+    
+    # Calcula la desviación estandar
+    sd(retornos_mes)
 
 ```
 
-## Media anualizada y volatilidad
+## Media anualizada, volatilidad y Sharpe
 
 La media y la volatilidad de los rendimientos mensuales corresponde a la media y la desviación estándar en un horizonte de inversión mensual. Los inversores anualizan esas estadísticas para mostrar el rendimiento en un horizonte de inversión anual.
 
 Para hacerlo, el paquete `PerformanceAnalytics` tiene la función `Return.anualized()` y `StdDev.anualized()` para calcular el retorno promedio anualizado (geométricamente) y la desviación estándar anualizada.
 
-Recordemos que el *ratio Sharpe* se calcula tomando los rendimientos excesivos medios restados por la tasa libre de riesgo (bonos), y luego dividida por la volatilidad. 
+También existe una función para el *ratio Sharpe* que se calcula tomando los rendimientos excesivos medios restados por la tasa libre de riesgo (bonos), y luego dividida por la volatilidad. 
+
+Estas funciones requieren como entrada una serie temporal de retornos.
 
 ```{r}
+#retornos<-na.omit(Return.calculate(Cl(SAN.MC)))
 # Calcula la media anualizada
-# Return.annualized(IBEX_returns)
+Return.annualized(retornos)
 
 # Calcula  standard deviation
-StdDev.annualized(IBEX_returns)
+StdDev.annualized(retornos)
 
 # Calcula SharpeRatio
-SharpeRatio.annualized(IBEX_returns,Rf=0) 
+SharpeRatio.annualized(retornos,Rf=0) 
 
-# Calcula la todo a la vezcon table.AnnualizedReturns()
-table.AnnualizedReturns(IBEX_returns)
+# Calcula la todo a la vez con table.AnnualizedReturns()
+table.AnnualizedReturns(retornos)
 
 ```
-## ventanas de tiempo diferentes
-Se pueden crear ventanas de tiempo diferentes con la funcion windows y aportando las fechas en el formato YYYY-MM-DD
+## Ventanas de tiempo
+Se pueden crear ventanas de tiempo diferentes con la funcion `windows()` dando las fechas inicio y fin del tramo en el formato YYYY-MM-DD.
 
 ```{r}
 library(quantmod)
@@ -469,20 +537,19 @@ library(quantmod)
                warning= "FALSE",
                adjust = TRUE)    
     
-    # Reseteamos los graficos par
-    dev.off()
+    
     # Calculo el retorno diario de cierres
-    returns<- Return.calculate(Cl(TEF.MC))
-    returns <- returns[-1, ] # quito la primera fila NA
-    names(returns)<-"Retornos_dia"
-    head(returns)
+    retorno<- Return.calculate(Cl(TEF.MC))
+    retorno <- retorno[-1, ] # quito la primera fila NA
+    names(retorno)<-"Retornos_dia"
+    head(retorno)
 
     #    returns<-zoo(returns)
-    plot.zoo(returns, main="retornos diarios de TEF")
+    plot.zoo(retorno, main="retornos diarios de TEF")
     
     # Creamos una ventana para el año 2012
-    tef_2012 <- window(returns, start = "2012-01-01", end = "2012-12-31")
-    tef_2014 <- window(returns, start = "2014-01-01", end = "2014-12-31")
+    tef_2012 <- window(retorno, start = "2012-01-01", end = "2012-12-31")
+    tef_2014 <- window(retorno, start = "2014-01-01", end = "2014-12-31")
     #head(tef_2012)
         
     # Cambiamos lo parametros graficos para pitar dos graficas juntas
@@ -497,136 +564,64 @@ library(quantmod)
 
 ```
 
-# Detectar No normalidad Sesgo y Kurtosis
-Muchos valores no tienen una disribución normal de probabilidad y tienden a tener una cola más larga por el lado negativo por ejemplo.
-Se estima que el 5% de los retornos se engloban en esta desviación de la cola, esto se llama sesgo o *skewness*. Cuando es cero la distribucion es normal, si es negativa la distribución está desviada, tiene sesgo hacia los valores negativos, y si es positiva lo contrario, tiende a los valores positivos.
+## No normalidad Sesgo y Kurtosis
+Muchos valores no tienen una distribución normal de probabilidad y tienden a tener una cola más larga por el lado negativo por ejemplo.
+
+Se estima que el 5% de los retornos se engloban en esta desviación de la cola, esto se llama sesgo o *skewness*. Cuando es cero la distribución es normal, si es negativa la distribución está desviada con sesgo o tendencia hacia los valores negativos, y si es positiva lo contrario, tiende a los valores positivos.
 
 Tenemos el concepto de *kurtosis* también para describir un comportamiento **no normal**. Este concepto se aplica solo a las colas de la distribución e indica si son o no más probables de lo esperado los extremos que en una distribución normal, es decir el centro es mas bajo y las colas *más anchas de lo esperado*, en inglés se dicen *fat tails* o colas gordas.
 
 ```{r}
     # sigamos con los datos de tef, pero ahora mensuales
-    TEF_mon <-  to.monthly(Cl(TEF.MC))
+    val_mes <-  to.monthly(retorno)
     #  Calculamos el sesgo skewness 
-    skewness(TEF_mon)
+    skewness(retorno)
 
     # Calculamos la kurtosis 
-    kurtosis(TEF_mon)
+    kurtosis(Cl(val_mes)) # 0 es normal, >0 es no normal fat tails
     
     # Cuando el sesgo es elevado es preferible usar la SemiDeviation en lugar de la sd, pues tiene en cuenta el sesgo 
-    SemiDeviation(TEF_mon)
+    SemiDeviation(Cl(val_mes))
 
 ```
 
 
-## Drawdowns , maxima pérdida
+## Drawdowns
 
-La volatilidad, la varianza etc.. son medidas que describen el riesgo en un período. Estos valores no son muy útiles al describir el peor caso de riesgo de comprar en un pico y vender en un valle. Este tipo de riesgo se puede cuantificar analizando las reducciones de la cartera, o la disminución de pico a valle en los rendimientos acumulados.
+La volatilidad, la varianza etc.. son medidas que describen el riesgo en un período. Estos valores no son muy útiles al describir el peor caso, el riesgo más severo en un periodo, es decir la probabilidad de comprar en un pico y vender en un valle. Este tipo de riesgo se puede cuantificar analizando las reducciones de la cartera, o la disminución de pico a valle en los rendimientos acumulados.
 
-La función `table.Drawdowns()` en `PerformanceAnalytics` informa los cinco episodios de perdidas más grandes en el período de muestra. El paquete también tiene otro gráfico de funciones `chart.Drawdown()` para visualizar la evolución de las  perdidas máximas de cada pico a lo largo del tiempo.
+La función `table.Drawdowns()` en `PerformanceAnalytics` informa los cinco principales episodios de pérdidas, los de mayores perdidas en el período de muestra. El paquete también tiene otra funcion `chart.Drawdown()` para visualizar la evolución de las perdidas máximas de cada pico a lo largo del tiempo.
 
 ```{r}
 require(quantmod)
 require(PerformanceAnalytics)  
-dev.off()
 
-    #r <- na.omit(ROC(Cl(SPY)))
-#    r <- na.omit(Return.calculate(Cl(SPY)))
+# ejemplo de calculo de drawdown
+    # calculamos los retornos diarios de TEF
     r <- na.omit(Return.calculate(Cl(TEF.MC)))
+    # llamamos a la funcion de tabla de drawdonwn
     table.Drawdowns(r)
 
-    # Plot de drawdowns
-    par(mfrow = c(2, 1) , mar=c(3, 2, 2, 2))
-    plot.zoo(Cl(TEF.MC)) 
-    chart.Drawdown(r)
-    dev.off()
-    
-    # ahora con mensuales
-    plot.zoo(Cl(TEF_mon))
-    r<-na.omit(Return.calculate(Cl(TEF_mon)))
-    # podemos usar de nuevo la funcion table.CalendarReturns
-    # para tener un buen resumen de los datos mensuales
-    
-    #na.omit(ROC(Cl(TEF_mon)))
-    #table.CalendarReturns(r)
-    chart.Drawdown(r)
-    
-    # ahora con 2014
-    tef_2014 <- window(Cl(TEF.MC), start = "2014-01-01", end = "2014-12-31")
-    plot.zoo(tef_2014)
-    r<-na.omit(Return.calculate(Cl(tef_2014)))
-    chart.Drawdown(r)
+    # Dibujar las perdidas
+        # definimos una grafica doble de 2 filas
+        par(mfrow = c(2,1) , mar=c(3, 2, 2, 2))
+
+    # Creamos una ventana de tiempo para ver solo el año 2014
+        r_2014 <- window(r, start = "2014-01-01", end = "2014-12-31")
+    # pintamos la evolucion del valor
+        plot.zoo(r_2014)
+    # pintamos la evolucion del drawdown en %
+        chart.Drawdown(r)
+        # salimos de grafico doble
+        dev.off()
+
 ```
-## Elección de los pesos de la cartera
-Vamos a ver un ejemplo sencillo de cómo elegir los pesos optimizados de una cartera de 2 valores. Suponemos una cartera compuesta por dos valores, por ejemplo acciones de TEF y SAN del Ibex35 entre los años 2012 y 2017.
-Vamos a encontrar el porcentaje óptimo de cada valor en la cartera para optener un sharpe máximo, el ratio sharpe nos indica el exceso de riesgo o beneficio sobre los activos libres de riesgo, que podemos tomar como los de r=0.
 
-```{r}
-require(quantmod)
-require(PerformanceAnalytics)  
-dev.off()
-# obtenemos los datos
-    getSymbols("TEF.MC", # simbolo del Ibex en yahoo finance
-               from = "2012-01-01", # desde fecha
-               to = "2017-12-31",   # hasta fecha
-               src = "yahoo",       # origen de los datos
-               warning= "FALSE",
-               adjust = TRUE)  
-    getSymbols("SAN.MC", # simbolo del Ibex en yahoo finance
-               from = "2012-01-01", # desde fecha
-               to = "2017-12-31",   # hasta fecha
-               src = "yahoo",       # origen de los datos
-               warning= "FALSE",
-               adjust = TRUE)  
-# calculamos los retornos
-        rTEF <- na.omit(Return.calculate(Cl(TEF.MC)))
-        rSAN <- na.omit(Return.calculate(Cl(SAN.MC)))
-#rIBEX <- na.omit(Return.calculate(Cl(IBEX)))
-        
-# echamos un ojo a los datos
-        par(mfrow = c(2, 1) , mar=c(3, 2, 2, 2))
-         plot.zoo(Cl(TEF.MC))
-         plot.zoo(Cl(SAN.MC))
-        
-# calculamos el calendario de retornos mensuales
-    table.CalendarReturns(rTEF)
-    x<-table.CalendarReturns(rTEF)
-    x<-x[,1:12] # quitamos la col anual
-    x<-as.matrix(x) # lo almacenamos como matriz para pintar el heatmap
-# pintamos un mapa de calor.
-#    image(1:ncol(x),1:nrow(x),t(x)[,nrow(x):1])
-#dev.off()
-#plot(x)
-#library(extrafont)
-#font_import()
-#yloadfonts(device="win")       #Register fonts for Windows bitmap output
-#fonts() 
-    windowsFonts(A = windowsFont("Calibri")) # cambio fuente a Calibri
-    par(family ="A")
-    image(1:ncol(x),1:nrow(x),t(x)[,nrow(x):1],col=heat.colors(10),
-          xlab="mes", ylab="año",main="Retornos mes", axes=FALSE )#, add=TRUE)
-    # pintamos el eje y e x
-    axis(2, at=1:nrow(x), labels=rev(rownames(x)), lwd=0)# y= años
-    axis(3, at=1:12, labels=colnames(x), lwd=0, pos=-0.25)# mes
-    # pintamos los valores 
-    e <- expand.grid( 1:12,rev(1:nrow(x)))
-    text(e, labels=t(x),cex=0.8)#, col="white")
-    
-# Initialize an empty vector for sharpe ratios
-vsharpe <- rep(NA, times = length(grid) )
+## Correlación entre valores
+El paquete `PerformanceAnalytics` tiene algunas funciones gráficas específicas interesantes para visualizar correlación entre valores y retornos.
 
-# Create a for loop to calculate Sharpe ratios
-for(i in 1:length(grid)) {
-	pesos <- grid[i]
-	preturns <- pesos * rTEF + (1 - pesos) * rSAN
-	vsharpe[i] <- SharpeRatio.annualized(preturns)
-}
-
-# Plot weights and Sharpe ratio
-plot(grid, vsharpe, xlab = "Weights", ylab= "Ann. Sharpe ratio")
-abline(v = grid[vsharpe == max(vsharpe)], lty = 3)
-```
-## Correlacion de valores
-El paquete `PerformanceAnalytics` tiene algunas funciones gráficas específicas interesantes para visualizar correlación entre valores y retornos, vamos a ver algunas de ellas  
+ * `chart.Scatter()`  dibuja un grafico xy
+ * `chart.Correlation()` dibuja la correlacion entre valores
 
 ```{r}
 require(PerformanceAnalytics)  
@@ -652,235 +647,29 @@ chart.RollingCorrelation(x,y, width = 6)
  #chart.RollingCorrelation(rTEF,rSAN, width = 12)
 
 ```
-```{r}
-tt<-data.frame()
-#rm(tt)
-for(i in symbol_list){
-    a= getSymbols(i, src = "yahoo", from = f_ini, to = f_fin,env=NULL,adjust = TRUE,auto.assign = FALSE)
-    tt[[i]]<-as.data.frame(a)
-}
-```
 
-## Ejemplo de sistema
-<https://timtrice.github.io/backtesting-strategies/data-quality.html#yahoo-vs.google>
+# LIBRERÍA `quantstrat`
+La librería [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2)  ha sido desarrollado por *Brian Peterson*, y es uno de los más completos y completos para análisis financieros. Con él, tendremos una base poderosa sobre la que generar sistemas de inversión propios y desarrollar nuestra imaginación de trader.
 
+El paquete está configurado como un sistema de capas, cuyo objetivo final es la estrategia de inversión. Una estrategia es la **programación sistemática de órdenes de compra- venta** sobre un activo (por ejemplo acciones de un valor de bolsa). El resultado de aplicar este sistema de compra-venta sobre el activo en datos históricos nos dará unos resultados.
 
-```{r}
-
-    rm.strat(portfolio.st)
-rm.strat(account.st)
-symbols <- basic_symbols()
-getSymbols(Symbols = symbols, src = "yahoo", index.class = "POSIXct", 
-           from = start_date, to = end_date, adjust = adjustment)
-initPortf(name = portfolio.st, symbols = symbols, initDate = init_date)
-initAcct(name = account.st, portfolios = portfolio.st, initDate = init_date, 
-         initEq = init_equity)
-initOrders(portfolio = portfolio.st, symbols = symbols, initDate = init_date)
-applyStrategy(strategy.st, portfolios = portfolio.st)
-checkBlotterUpdate(portfolio.st, account.st, verbose = TRUE)
-updatePortf(portfolio.st)
-updateAcct(account.st)
-updateEndEq(account.st)
-chart.Posn(portfolio.st, Symbol = "SPY", Dates="2008-01-01::2008-07-01", 
-           TA="add_SMA(n = 10, col = 2); add_SMA(n = 30, col = 4)")
-
-le <- as.data.frame(mktdata["2008-02-25::2008-03-07", c(1:4, 7:10)])
-DT::datatable(le, 
-              rownames = TRUE,
-              extensions = c("Scroller", "FixedColumns"), 
-              options = list(pageLength = 5, 
-                             autoWidth = TRUE, 
-                             deferRender = TRUE, 
-                             scrollX = 200, 
-                             scroller = TRUE,
-                             fixedColumns = TRUE), 
-              caption = htmltools::tags$caption(
-                  "Table 6.1: mktdata object for Feb. 25, 2008 to Mar. 7, 2008"))
-
-chart.Posn(portfolio.st, Symbol = "SPY", Dates="2009-08-01::2009-12-31", 
-           TA="add_SMA(n = 10, col = 2); add_SMA(n = 30, col = 4)")
-
-chart.Posn(portfolio.st, Symbol = "SPY", 
-           TA="add_SMA(n = 10, col = 2); add_SMA(n = 30, col = 4)")
-```
-
-
-
-# Programación de sistemas de inversión con R 
-
-En este curso explicaremos como usar R para hacer análisis financieros, se muestra cómo trazar gráficas de valores, y a programar estrategias de inversión.
-
-El objetivo es aprender a utilizar algunos paquetes de R que nos facilitan el manejo de datos financieros y comprobar los resultados sobre históricos.
-
-Utilizaremos principalmente la librería [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2). Este paquete R es uno de los más completos y forma una base poderosa sobre la que generar sistemas de inversion.
-
-También haremos uso de otros paquetes como `TTR`, que continene muchos indicadores o  `quantmod` para obtener datos financieros desde la web. Este último `quantmod` es un paquete para análisis cuantitativos o *quant* de datos financieros, contiene indicadores preprogramados y tiene funciones gráficas de calidad para representar valores cotizados.
-
-
-## Estrategias
-Para la comprensión de las funciones que veremos en `quantstrat` no solo hace falta un conocimiento intermedio de R, además es necesario comprender los conceptos sobre los que trabajan los sistemas de inversión.
-
-Un estrategia es un sistema automático de inversión que se basa en 3 pilares: **indicadores, señales y reglas**.
-
-Veremos paso a paso cada uno de estos pilares con los que conformar estrategias complejas así como la visualización gráfica de los datos financieros.
-
-
-# Paquete `quantmod`
-
-## Obtener datos de valores 
-
-El primer paso para trabajar es obtener los datos. Por suerte la librería `quantmod` nos proporciona una función versatil para capturarlos de servicios web: `getSymbols`. Esta función permite elegir entre múltiples origenes desde los que descargarse los datos.
-
-Es importante indicar que el comando `getSymbols()` devuelve un objeto con el mismo nombre que el símbolo que se solicita, por lo que no hay que asignarlo a una variable.
-
-Veamos un ejemplo que obtiene los datos del índice *ibex35* desde yahoo y luego pinta los datos:
-
-```{r}
-    # lectura de datos financieros con quantmod
-    library(quantmod) # cargamos el paquete
-    
-    # leemos los datos del IBEX
-    getSymbols("^IBEX", # simbolo del Ibex en yahoo finance
-               from = "2015-01-01", # desde fecha
-               to = "2017-12-31",   # hasta fecha
-               src = "yahoo",       # origen de los datos
-               warning= "FALSE",
-               adjust = TRUE)       # indicamos que nos devuelva los cierres ajustados por splits, dividendos  etc..
-    
-    # vemos el encabezado de los datos descargados
-    # notese que la variable se ha creado con el nombre de la llamada
-    head(IBEX)
-    
-    # pintamos el valor de cierre Cl()
-    plot(Cl(IBEX))
-    
-    # pintamos el histograma de frecuencias de los valores máximos Hi()
-    hist(Hi(IBEX))
-```
-Si nos fiajamos mas detenidamente en los datos leídos por la función `getSymbols()` podemos observar que R almacena los valores como clase `xts` y `zoo`que son tipos de series temporales.
-
-Los datos descargados constan de varias columnas y podemos elegir entre el valor de apertura (Op), cierre(Cl), máximo (Hi) o mínimo (Lo), volumen y cierre ajustado de cada intervalo temporal.
-
-También podemos convinar estos datos en la forma deseada, solo Cierre y Apertura CO, máximo y volumen etc. Estas funciones se agrupan bajo la denominación OHLC (Open, High, Low, Close). Si suponemos que nos hemos descargado el valor de la acion x, las opciones de filtro de los datos son:
-
- - `Op(x)` $\rightarrow$ apertura 
- - `Hi(x)` $\rightarrow$ máximo  
- - `Lo(x)` $\rightarrow$ mínimo 
- - `Cl(x)` $\rightarrow$ cierre 
- - `Vo(x)` $\rightarrow$ volumen 
- - `Ad(x)` $\rightarrow$ cierre ajustado 
- - `seriesHi(x)`$\rightarrow$ máximo de la serie 
- - `seriesLo(x)`$\rightarrow$ mínimo de la serie
- - `OpCl(x)`, `ClCl(x)`, `HiCl(x)`, `LoCl(x)`, `LoHi(x)`, `OpHi(x)`,`OpLo(x)`,`OpOp(x)`,`HLC(x)`,`OHLC(x)`,`OHLCV(x)`
-
-También existen otras muchas funciones relacionadas como las siguientes:
-
-```{r warning=FALSE}
-    # Observamos los datos y funciones sobre los mismos
-        class(IBEX) # Mostrar la clase de los datos
-        is.OHLC(IBEX)# Muestra si son o no datos del tipo apertura,máximo,mínimo,cierre.
-        has.Vo(IBEX)# es TRUE si los datos contienen el volumen
-        seriesHi(IBEX) # nos devuelve el valor máximo de la serie
-    # IBEX['2017::'] # Datos del 2017 en adelante
-    
-    # los códigos siguientes muestran los incrementos diarios o retornos por tiempo
-    # se añade la función head para mostrar solo los primeros datos de la tabla
-        head(dailyReturn(IBEX)) # retorno diario 
-        head(weeklyReturn(IBEX)) # Retorno semanal
-    
-        monthlyReturn(IBEX) # retorno mensual
-    #quarterlyReturn(IBEX) # retorno por cuatrimestres
-        yearlyReturn(IBEX) # retorno anual
-    
-    # allReturns(IBEX) # todos los retornos en una dataframe
-```
-
-
-## Gráficas 
-### `chartSeries`
-La librería `quantmod` tienen funciones para trazar gráficos complejos y añadir indicadores a las gráficas. La función que usaremos para esto es `chartSeries()`:
-
-```{r}
-    # Usamos el motor gráfico de quantmod
-    # sobre la serie de datos desargada del IBEX35
-    # chartSeries(IBEX, TA=NULL)
-    
-        chartSeries(IBEX,TA=c(addVo(),addBBands()),theme=chartTheme('white'))
-    # Este grafico es por defecto el dibujado con la funcion barChart()
-    # barChart(IBEX)
-```
-Como vemos el argumento `TA=` permite introducir indicadores en la gráfica como el volumen o bandas de bollinger. El argumento `theme` indica el formato de trazado general del gráfico puede personalizarse al completo (ejem: `chartTheme('white',up.col='blue',dn.col='red')`) .
-
-Los indicadores que se pueden añdir al gráfico con `quantmod` son:
-
- - `addvo()`: $\rightarrow$ añade el volumen
- - `addBBands()`: $\rightarrow$ Añade las bandas de Bollinger
- - `addMACD()`: $\rightarrow$ indicador MAC de convergencia de medias móviles
- - `addCCI()`: $\rightarrow$ añade el indicador *Commodity channel index*
- - `addADX()`: $\rightarrow$ añade el *Directional Movement Indicator*
- - `addCMF()`: $\rightarrow$ añade el *Chaiken Money Flow*
- - `addDEMA()`: $\rightarrow$ añade el *Double Exponential Moving Average*
- - `addDPO()`: $\rightarrow$ añade el *Detrended Price Oscillator*
- - `addEMA()`: $\rightarrow$ añade el *Exponential Moving Average*
- - `addEnvelope()`: $\rightarrow$ añade el *Add Price Envelope*
- - `addEVWMA()`: $\rightarrow$ añade el *Add Exponential Volume Weigthed Moving Average*
- - `addMACD()`: $\rightarrow$ añade el *Add Moving Average Convergence Divergence*
- - `addMomentum()`: $\rightarrow$ añade el *Add Momentum*
- - `addROC()`: $\rightarrow$ añade el *Add Rate of Change*
- - `addRSI()`: $\rightarrow$ añade el *Relative Strength Indicator*
- - `addSAR()`: $\rightarrow$ añade el *Parabolic Stop and Reverse*
- - `addSMA()`: $\rightarrow$ añade el **Simple Moving Average*, medias móviles
- - `addSMI()`: $\rightarrow$ añade el *Stocastic Momentum Index*
- - `addTRIX()`: $\rightarrow$ añade el *Triple Smoothed Exponential Oscillator*
- - `addWMA()`: $\rightarrow$ añade el *Add Weighted Moving Average*.
-
-### `barChart`
-Otra función para pintar datos es `barChart(IBEX)` que traza un tipo de gráfico habitual que incluye el volumen.
-```{r}
-    barChart(IBEX,theme=chartTheme('white'))
-```
-
-
-# Paquete `TTR`
-Otra de las librerías interesantes para el trading es el paquete `TTR`, que contiene muchos de los indicadores clásicos de análisis técnico así como funciones de descarga de datos de *Yahoo Finance* y otras funciones interesantes.
-
-Entre los indicadores tienen programados muchos tipos de medias móviles (SMA, EMA, ALMA...), ADX, RSI, etc.
-
-```{r}
-    # Ejemplo paquete TTR
-    library("TTR")
-    # obtener datos
-        # nos devuelve todos los simbolos del mercado NYSE
-        nyse.valores <- stockSymbols("NYSE") # solo funciona para AMEX NASDAQ y NYSE
-    # obtener datos cotizados
-        # bajamos los datos de accion santander del 2017
-        san <- getYahooData("SAN.MC", 20170101, 20171231, freq = "daily", type = "price",  adjust = TRUE, quiet = FALSE)
-    # calculamos dos indicaores de medias móviles
-        # Ojo pues al usar getYahooData, la función Cl nos da dos valores
-        # usando getSymbols de quandmod no ocurre esto
-        sma.50 <- SMA(Hi(SAN.MC), n = 50)
-        ema.20<- EMA(Op(san),n=20)
-    # trazamos un gráfico
-        plot(OHLC(san)) 
-    # y añadimos a la grafica de la media movil
-        lines(sma.50, col="red", lwd=1)
-        lines(ema.20, col="wheat", lwd=1)
-```
-
-# Paquete `quantstrat`
-Usaremos la librería [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2) para crear sistemas de inversión cuyo resultado final se muestra en las denominadas **estrategias**.
-
-Este paquete R ha sido desarrollado por *Brian Peterson*, y es uno de los más completos y completos para análisis financieros. Con él tendremos una base poderosa sobre la que generar sistemas de inversión propios y desarrollar nuestra imaginación de trader.
-
-Una estrategia es la **programación sistemática de órdenes de compra- venta** sobre un activo (por ejemplo acciones de un valor de bolsa). El resultado de aplicar este sistema de compra-venta sobre el activo en datos históricos nos dará unos resultados de inversión.
-
-Si la estrategia es bunea incrementará el patrimonio inicial y si es mala perderemos dinero.
+Si la estrategia es buena incrementará el patrimonio inicial y si es mala perderemos dinero.
 
 Las estrategias son una forma racional de invertir en bolsa. Supone hacer el esfuerzo de crear reglas y una esructura sistemática de inversión que se ejecutará de manera automatizada sin que los sentimientos intervengan durante el proceso.
 
 ## Instalacion de `quantstrat`
- Este paquete es un poco raro, y no muy común así que su instalación es algo complicda.
- lo primero es instalar una serie de dependencias antes de descargar la versión zip de la librería
+Existen dos formas de hacerlo la facil y la dificil:
+
+La facil es instalarlo a través de *devtools*, **RECOMENDAMOS encarecidamente esta opción** ya que el desarrollador solo actualiza la version de *github* que es la que se descarga con esta herramienta.
+
+```{r eval=FALSE}
+install.packages("devtools")
+require(devtools)
+install_github("braverock/blotter") # dependency
+install_github("braverock/quantstrat")
+```
+
+La dificil es la forma manual, que es algo complicada. Lo primero es instalar una serie de dependencias antes de descargar la versión *zip* de la librería
  
 ```{r}
 rm(list = ls()) # limpiamos las variables
@@ -907,17 +696,8 @@ install.packages("PerformanceAnalytics")
 install.packages("foreach")
 ```
 
-Otra opcion es instalarlo a través de devtools, RECOMENDAMOS encarecidamente esta ultima opcion ya que el desarrollador solo actualiza la version de github que es la que se descrga con esta herramienta.
 
-```{r eval=FALSE}
-install.packages("devtools")
-require(devtools)
-install_github("braverock/blotter") # dependency
-install_github("braverock/quantstrat")
-```
-
- 
-## Estructura de una estrategia
+## Estrategias, la base `quantstrat`
 
 Para configurar un sistema de inversión, `quantstrat` requiere definir tres objetos:
 
@@ -927,7 +707,7 @@ Para configurar un sistema de inversión, `quantstrat` requiere definir tres obj
  
 La unión de estos tres objetos define una estrategia.
 
-Una **cuenta** es la billetera del sistema, en la cuenta se refleja el resutado contable de las inversiones, tras aplicar las estrategias. Por ejemplo en la cuenta hay que especificar el importe inicial, el dinero que vamos a apostar por cada compra, las carteras de  valores  sobre las que se aplican las órdenes etc. 
+Una **cuenta** es la billetera del sistema, en la cuenta se refleja el resutado contable de las inversiones, tras aplicar las estrategias. Por ejemplo, en la cuenta hay que especificar el importe inicial, el dinero que vamos a apostar por cada compra, las carteras de  valores  sobre las que se aplican las órdenes etc. 
 
 Una **cartera** es un grupo de valores o un único valor sobre los que actuar o aplicar una estrategia. Es el conjunto de acciones sobre las que invertimos.
 
@@ -2131,3 +1911,135 @@ options("getSymbols.yahoo.warning"=FALSE)
   SharpeRatio.annualized(r0,0)
 
 ```
+
+
+# R para criptomonedas
+
+## `coinmarketcapr`
+
+el paquete 
+```{r}
+    # instalacion del paquete
+    install.packages("coinmarketcapr")
+
+    # cargamos el paquete
+    library("coinmarketcapr")
+
+
+# ejemplos
+# pinta las 5 primeras monedas en euros con su valor
+plot_top_5_currencies('EUR')
+get_global_marketcap('EUR')
+
+market_today <- get_marketcap_ticker_all()
+head(market_today[,1:8])
+
+library(treemap)
+df1 <- na.omit(market_today[,c('id','market_cap_usd')])
+df1$market_cap_usd <- as.numeric(df1$market_cap_usd)
+df1$formatted_market_cap <-  paste0(df1$id,'\n','$',format(df1$market_cap_usd,big.mark = ',',scientific = F, trim = T))
+treemap(df1, index = 'formatted_market_cap', vSize = 'market_cap_usd', title = 'Capitalizacion mercado de cryptomonedas', fontsize.labels=c(12, 8), palette='RdYlGn')
+
+```
+
+## Package `crypto`
+la informacion detallada en : <https://cran.r-project.org/web/packages/crypto/crypto.pdf>
+o la web de desarrollo en github: <https://github.com/JesseVent/crypto>
+
+
+```{r}
+install.packages("crypto", dependencies = TRUE)
+library(crypto)
+will_i_get_rich_from <- getCoins("kin")
+# Retrieve crypto market history for specific coin
+?getCoins
+will_i_get_rich_from <- getCoins("kin")
+
+# Get list of coins and rank
+?listCoins
+rich_list <- listCoins()
+
+# Retrieve current crypto market details
+?getPrices
+am_i_rich_now <- getPrices()
+
+# Retrieve exchange details for all coins or specific coin
+?getExchanges
+where_do_i_get_rich <- getExchanges()
+
+# Convert and/or summarise market history into xts object
+?crypto2xts
+when_will_i_get_rich <- crypto2xts(will_i_get_rich, "week")
+```
+
+
+
+
+
+## Ejemplo de sistema
+<https://timtrice.github.io/backtesting-strategies/data-quality.html#yahoo-vs.google>
+
+
+```{r}
+
+    rm.strat(portfolio.st)
+rm.strat(account.st)
+symbols <- basic_symbols()
+getSymbols(Symbols = symbols, src = "yahoo", index.class = "POSIXct", 
+           from = start_date, to = end_date, adjust = adjustment)
+initPortf(name = portfolio.st, symbols = symbols, initDate = init_date)
+initAcct(name = account.st, portfolios = portfolio.st, initDate = init_date, 
+         initEq = init_equity)
+initOrders(portfolio = portfolio.st, symbols = symbols, initDate = init_date)
+applyStrategy(strategy.st, portfolios = portfolio.st)
+checkBlotterUpdate(portfolio.st, account.st, verbose = TRUE)
+updatePortf(portfolio.st)
+updateAcct(account.st)
+updateEndEq(account.st)
+chart.Posn(portfolio.st, Symbol = "SPY", Dates="2008-01-01::2008-07-01", 
+           TA="add_SMA(n = 10, col = 2); add_SMA(n = 30, col = 4)")
+
+le <- as.data.frame(mktdata["2008-02-25::2008-03-07", c(1:4, 7:10)])
+DT::datatable(le, 
+              rownames = TRUE,
+              extensions = c("Scroller", "FixedColumns"), 
+              options = list(pageLength = 5, 
+                             autoWidth = TRUE, 
+                             deferRender = TRUE, 
+                             scrollX = 200, 
+                             scroller = TRUE,
+                             fixedColumns = TRUE), 
+              caption = htmltools::tags$caption(
+                  "Table 6.1: mktdata object for Feb. 25, 2008 to Mar. 7, 2008"))
+
+chart.Posn(portfolio.st, Symbol = "SPY", Dates="2009-08-01::2009-12-31", 
+           TA="add_SMA(n = 10, col = 2); add_SMA(n = 30, col = 4)")
+
+chart.Posn(portfolio.st, Symbol = "SPY", 
+           TA="add_SMA(n = 10, col = 2); add_SMA(n = 30, col = 4)")
+```
+
+
+
+# Programación de sistemas de inversión con R 
+
+En este curso explicaremos como usar R para hacer análisis financieros, se muestra cómo trazar gráficas de valores, y a programar estrategias de inversión.
+
+El objetivo es aprender a utilizar algunos paquetes de R que nos facilitan el manejo de datos financieros y comprobar los resultados sobre históricos.
+
+Utilizaremos principalmente la librería [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2). Este paquete R es uno de los más completos y forma una base poderosa sobre la que generar sistemas de inversion.
+
+También haremos uso de otros paquetes como `TTR`, que continene muchos indicadores o  `quantmod` para obtener datos financieros desde la web. Este último `quantmod` es un paquete para análisis cuantitativos o *quant* de datos financieros, contiene indicadores preprogramados y tiene funciones gráficas de calidad para representar valores cotizados.
+
+
+## Estrategias
+Para la comprensión de las funciones que veremos en `quantstrat` no solo hace falta un conocimiento intermedio de R, además es necesario comprender los conceptos sobre los que trabajan los sistemas de inversión.
+
+Un estrategia es un sistema automático de inversión que se basa en 3 pilares: **indicadores, señales y reglas**.
+
+Veremos paso a paso cada uno de estos pilares con los que conformar estrategias complejas así como la visualización gráfica de los datos financieros.
+
+
+
+
+
