@@ -359,7 +359,7 @@ Es un hecho matemático, pero que no deja de ser cusioso al que lo piensa por pr
 Esto se comprende mejor con un un ejemplo: si parto de 100 €, y pierdo el 50% en un año, tengo a final de año 50 €. Para recuperar hasta 100 € del principio necesito una ganancia el segundo año del 200% y no del 50%.
 
 
-## Calculo de los retornes
+## Cálculo de los retornes
 Para el cálculo de retornos ya vimos que la librería `quantmod` tiene varias funciones del tipo `dailyReturn` o `weeklyReturn` que calculan el % de retorno en una serie temporal, pero con `PerformanceAnalytics` podemos hacerlo sobre una cartera de valores con las funciones `Return.calculate()` y `Return.portfolio()`. Las funciones requieren que los datos de entrada sean de la clase de la serie *xts-time*. 
 
 Vamos a ver un ejemplo de cálculo.
@@ -647,6 +647,175 @@ chart.RollingCorrelation(x,y, width = 6)
  #chart.RollingCorrelation(rTEF,rSAN, width = 12)
 
 ```
+# LIBRERÍAS para series temporales
+
+El campo de la inversión es ámplio, pero los datos de partida siempre son del mismo tipo: **manejamos series temporales de datos**.
+
+Una *serie temporal* es un conjuntos de datos que contien al menos dos variables en cada observación, una es la marca de tiempo y otra el dato registrado. Almacenamos registros de valores junto con la fecha en la que se producen, lo que nos da como resultado una colección de datos emparejados fecha-valor.
+
+Estamos acostumbrados a ver las series temporales como gráficas en las que el eje y (ordenadas) representa el valor, y el eje x(abcisas) representa el tiempo (ordenado).
+
+Para entender mejor las series temporales debemos indagar en su naturaleza, y clasificarlas, en primer lugar la mayor parte de las series con las que trabajamos en finanzas son series secuenciales de datos, en las que el intervalo entre datos es idéntico y constante entre cada par de valores. 
+
+una dscomposición básica de las series temporales es decir que están compuestas por varios componentes que serían: *tendencia*, *ciclo* y *aleatoriedad*. Es decir un valor y~i~ de una serie temporal lo normal es que se pueda suponer es suma de un valor estable en tendencia, un valor por estacionalidad o ciclo y otro componente de aleatoreidad o ruido, pero esto es ya mucha teoría, vamos a la práctica:
+
+
+
+Describiremos algunas de las librerías más habituales de R para manejo de series temporales que son: `ts`, `xts`, `zoo`, `forecast`. No lo haremos como el resto del libro por librerías, sino que iremos a usos concretos.
+
+
+## Definir una serie temporal
+El paquete `ts` sirve para definir y crear de cero una serie temporal.
+Para crear una serie temporal basta con indicar el vector de datos de la serie, la fecha de inicio y la frecuencia de los datos
+
+```{r}
+# creamos varias series temporales
+# serie mensual, la frecuencia indica el nuero de datos por unidad de tiempo año
+ts(1:24, start = c(1999, 1), frequency = 12)
+
+# Misma serie pero asignando los datos a cuartos de año
+ts(1:24, start = c(1999, 1), frequency = 4)
+
+# misma serie pero cada dato es un año
+ts(1:24, start = c(1999, 1), frequency = 1)
+```
+
+Crear una serie aleatoria de prueba es sencillo con este método, vamos a ver un ejemplo en el que admas describiremos como obterner lo datos de fecuencias
+
+```{r}
+# Creamos una serie aleatoria que empieza en julio del 2000 
+# y tienen 2 años de datos mensuales
+mi_st<-ts(cumsum(1 + round(5*rnorm(48), 2)),
+          start = c(2000, 7), frequency = 12)
+
+plot(mi_st) # podemos usar tambien 'plot.ts' para series temporales 
+
+# Maximo de la serie
+which.max(mi_st)
+
+# Veamos la frecuencia de la serie
+frequency(mi_st)
+```
+### Gráficas estacionales
+Una de las representaciones clásicas de la series temporales es su estacionalidad, una gráfica estacional es similar a una gráfica de tiempo en la que los datos se dibujan en por ciclos o  temporadas. Se pueden dibujar rápidamente con una función de la librería `forecast` en concreto con `ggseasonplot()`.
+
+En los ejemplos se usará una varante interesante con coordenadas polares, donde el eje de tiempo es circular en lugar de horizontal.
+
+```{r}
+# Creamos una serie aleatoria que empieza en julio del 2000 
+# y tienen 5 años de datos mensuales (frec=12)
+mi_st<-ts(cumsum(1 + round(4*rnorm(5*12), 2)),
+          start = c(2000, 7), frequency = 12)
+
+plot(mi_st) # Grafica de la serie creada
+
+# Gráfica estacional de la serie
+# es del paquete forecast
+require(forecast)
+ggseasonplot(mi_st,year.labels=TRUE, main="Gráfica estacional", xlab="mes")
+
+# Gráfica de estacional de la serie en coordenadas polares
+ggseasonplot(mi_st, polar = TRUE)
+
+```
+![serie temporal creada](imag/graficaTS_1.png)
+
+![Gráfica estacional](imag/graf_estacional.png)
+
+![Grafica estacional coordenadas polares](imag/graf_estacional_polar.png)
+
+## Autocorrelación de series temporales
+Una forma de obtener información sobre el tipo de serie temporal y sus dependencias es trazar una gráfica de cada observación contra otra observación que ocurrió algún tiempo atrás, esto tecnicamente se llama hacer gráficas de retraso (lag) y despues calcular la autocorrelación (ACF) de estas series.
+
+El paquete `forecast`tiene la fucniones `gglagplot()` y `ggAcf()` que calculan y pintan los resultados.
+
+Las graficas de retardo se hacen con  `gglagplot()` y la grafica de autocorrelación de la serie con `ggAcf()`, este ultimo es el gráfico ACF.
+
+```{r}
+#usaremos los datos calculados anteriormente
+library(ggplot2)
+# Crea una grafico con autoplot
+# autoplot es una función de graficado muy completa y simple
+autoplot(mi_st)
+
+# Crea un grafico de restasos
+gglagplot(mi_st)
+
+# Crea un gráfico de autocorrelación ACF
+ggAcf(mi_st)
+```
+
+![Gráficas de retrasos](imag/graf_retrasos.png)
+
+![autocorrelacion de la serie](imag/autocorrelacion.png)
+
+La información que nos aporta la gráfica de autocorrelación es importante y significativa, por ejemplo, es fácil identificar las series cíclicas y estacionarias con un simple vistazo, y por tanto obtener información relevante y objetiva.
+
+Las marcas azules de la grafica de autocorrelación separan los valores, intervalos  significativos (los mayores que la linea).
+
+```{r}
+    library("zoo")
+    library("forecast")
+    # Pintamos una gráfic de las manchas solares por año
+    autoplot.zoo(sunspot.year)# library zoo
+    ggAcf(sunspot.year) # library forecast
+```
+
+![autocorrelación de la serie de manchas solares](imag/manchassolares.png)
+
+![autocorrelación de la serie de manchas solares](imag/autocorrelacion1.png)
+
+## Ruido blanco
+El ruido blanco es una forma de decir que los datos son puramente aleatorios y por tanto impredecibles. Se puede realizar una prueba de *Ljung-Box*  utilizando la función `Box.test`del paquete `stats` para confirmar la aleatoriedad de una serie. Un valor **p mayor que 0.05** sugiere que los datos no son significativamente diferentes del ruido blanco es decir que son impredecibles.
+
+Por ejemplo, vamos a comprobar la llamada *"Hipótesis del mercado eficiente"* que establece que los precios de los activos reflejan toda la información disponible. Una consecuencia de esto es que los cambios diarios en los precios de las acciones deben comportarse como **ruido blanco**.
+
+La consecuencia para los brokers es que el mejor pronóstico del precio futuro es el precio actual. Vams a probar esta hipótesis con los precios de las acciones de *google*.
+
+
+```{r}
+library("quantmod") # para leer los datos
+
+    val1<-getSymbols("goog", from ="2010-01-01", to ="2015-12-31", src ="yahoo", warning= "FALSE",adjust = TRUE,auto.assign=FALSE)
+
+    val1<-Cl(val1) # nos quedamos solo con los cierres
+
+        # Pintamos la serie de cierres
+    #autoplot(val1)
+    plot.zoo(val1, ylab="Google", main="evolucion de Google desde 2010", xlab="año")
+
+    # Pintamos las diferencias la resta del valor de ayer menos hoy
+    autoplot(diff(val1))
+
+    # ACF pintamosla acutocorrelacion de la serie de diferencias
+    ggAcf(diff(val1))
+
+    # Realizamos el test Ljung-Box sobre las diferencias
+    Box.test(diff(val1), lag = 10, type = "Ljung")
+```
+## Pronósticos sencillos
+Llamamos predicción simple a una proyección a futuro de los datos actuales calculada como repeticion del valor actual. Esto es lo que los ingleses denoinan el pronostico de tontos, pero que nos vale para comparar los resultados de los modelos.
+
+La librería `forecast`contiene algunas funciones interesantes como `naive()`y `checkresiduals()` para la representación de pronósticos. Por ejemplo para ver el pronóstico ingenuo visualmente usaremos `naive(num_intervalos_futuros)`. Esta función crea un objeto  `forecast`cuya representación gráfica es automática, veamos cómo usarlo:
+
+```{r}
+    # Usamos naive() del paquete forecast
+    # para predecir 100 valores a futuro de la serie de google
+    pronostico_google <- naive(val1, 100)
+
+    # Pintamos los datos de pronostico
+    autoplot(pronostico_google)
+    head(summary(pronostico_google))
+    
+    #calculamos los residuos del pronóstico
+    # ojo usarems la funcion pipe (tubería)
+    val1 %>% naive(100) %>% checkresiduals()
+    # si los residuos son ruido blanco, es un buen pronóstico
+```
+
+![pronóstico1](imag/pronostico1.png)
+
+
 
 # LIBRERÍA `quantstrat`
 La librería [quantstrat](https://www.rdocumentation.org/packages/quantstrat/versions/0.8.2)  ha sido desarrollado por *Brian Peterson*, y es uno de los más completos y completos para análisis financieros. Con él, tendremos una base poderosa sobre la que generar sistemas de inversión propios y desarrollar nuestra imaginación de trader.
@@ -2040,6 +2209,63 @@ Un estrategia es un sistema automático de inversión que se basa en 3 pilares: 
 Veremos paso a paso cada uno de estos pilares con los que conformar estrategias complejas así como la visualización gráfica de los datos financieros.
 
 
+# LIBRERÍA `coinmarketcapr`  Criptomonedas
+No podemos hacer un curso completo de R para bolsa sin hablar de las criptomonedas,que son el nuevo mercado emergente y poderoso.
+Ya existen varias librerías para acceso a los datos de criptos que usan las APIS de las principales webs de referencia. El mundo *cripto* es nuevo, abrierto y sorprendente, existen muchas oportunidades y los mercados son accesibles y desregulados aún. Debemos aprovechar estas circunstancias e inciarnos en él, además conservan muchos parecidos con los modelos de mercado de bolsa típicos, al final las criptomonedas pueden tratarse como acciones de compañías distintas que cotizan en un exchange que es equivalente a una bolsa de valores. 
+
+Debes tener presente que es un mercado desregulado, por lo que el riesgo es mayor, no existe seguridad juridica e incluso algunas regulaciones nacionales tratan de luchar contra él. Pero por otro lado es un mundo nuevo con cientos de oprotunidades en los que la seguridad la controla mucho más personalmente el usuario que delega menos y por tanto requiere de más conocimiento y sobre todo percibir el riesgo más profundamente y su consecuencias. Aquí no existe un tribulan que te resuelva serás tú mismo con tus decisiones el que 
+## `library("coinmarketcapr")`
+
+```{r}
+library(coinmarketcapr)
+
+library(yaml)
+library(googleVis)
+library(knitr)
+op <- options(gvis.plot.tag="chart")
+
+# obtenemos el tiecker de los 100 primeras monedas
+top_cc <- get_marketcap_ticker_all()
+kable(head(top_cc))# crea una tabla con los datos
 
 
+mapply(class,top_cc)
+
+	
+for(i in c(4:ncol(top_cc))) {
+    top_cc[,i] <- as.double(top_cc[,i])
+}
+
+mark <- gvisColumnChart(top_cc[1:15, ], "name", "market_cap_usd", options = list(title = "Market Cap Of Leading Cryptocurrencies", 
+    legend = "left"))
+plot(mark)
+
+ar <- gvisColumnChart(top_cc[1:15, ], "name", c("percent_change_1h", "percent_change_24h", 
+    "percent_change_7d"), options = list(title = "% change of prices", legend = "top"))
+plot(var)
+
+vol <- gvisColumnChart(top_cc[1:15, ], "name", c("X24h_volume_usd"), options = list(title = "Volume", 
+    legend = "top"))
+plot(vol)
+
+#calculamos la cuota de mercado de las primeras 5 monedas
+format(sprintf("Market share of top 5 cryptocurrencies is %f",sum(top_cc[1:5,"market_cap_usd"])/sum(top_cc$market_cap_usd)))
+
+
+# crecimiento de los ultimos 3 meses
+library(quantmod)
+coins <- unique(data1$name)
+s_date = Sys.Date() - 1
+data1$market_growth <- NA
+for (i in coins) {
+    data1[data1$name == i, ]$market_growth = Delt(data1[data1$name == i, ]$market, 
+        type = "arithmetic", k = 90)
+}
+c_data = data1[complete.cases(data1), ]  #complete.cases is used to get rwcords without NA
+mg_3 = gvisColumnChart(c_data[c_data$date == s_date, ], "name", "market_growth", 
+    options = list(title = "Market Growth in the last 3 months", scaleType = "allfixed", 
+        legend = "top"))
+plot(mg_3)
+ 
+```
 
